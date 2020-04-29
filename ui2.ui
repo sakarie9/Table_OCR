@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>910</width>
+    <height>799</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="5,1">
+   <item>
+    <widget class="QTableWidget" name="tableWidget"/>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout" stretch="10,1,1">
+     <item>
+      <widget class="QTableWidget" name="tableWidget_tags"/>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QPushButton" name="deleteButton">
+         <property name="text">
+          <string>删除行</string>
+         </property>
+         <property name="autoDefault">
+          <bool>false</bool>
+         </property>
+         <property name="default">
+          <bool>false</bool>
+         </property>
+         <property name="flat">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="clearButton">
+         <property name="text">
+          <string>清空</string>
+         </property>
+         <property name="autoDefault">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QPushButton" name="outputButton">
+         <property name="text">
+          <string>导出</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="closeButton">
+         <property name="text">
+          <string>关闭</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>deleteButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>deleteRow()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>788</x>
+     <y>688</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>756</x>
+     <y>705</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>clearButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>clearTable()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>861</x>
+     <y>691</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>888</x>
+     <y>706</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>outputButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>output()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>779</x>
+     <y>759</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>749</x>
+     <y>774</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>closeButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>867</x>
+     <y>754</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>895</x>
+     <y>769</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>deleteRow()</slot>
+  <slot>clearTable()</slot>
+  <slot>output()</slot>
+ </slots>
+</ui>

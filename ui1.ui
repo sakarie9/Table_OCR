@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>961</width>
+    <height>648</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout" stretch="3,3,1">
+    <item>
+     <widget class="QtImageViewer" name="image1" native="true"/>
+    </item>
+    <item>
+     <widget class="QtImageViewer" name="image2" native="true">
+      <widget class="QComboBox" name="imageList">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>141</width>
+         <height>20</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+    </item>
+    <item>
+     <layout class="QVBoxLayout" name="buttonLayout">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetDefaultConstraint</enum>
+      </property>
+      <item>
+       <widget class="QPushButton" name="loadButton">
+        <property name="text">
+         <string>打开图片</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="procButton">
+        <property name="text">
+         <string>开始转换</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="editButton">
+        <property name="text">
+         <string>修改参数</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="excelButton">
+        <property name="text">
+         <string>生成Excel</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="tagButton">
+        <property name="text">
+         <string>生成标签</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>961</width>
+     <height>23</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QtImageViewer</class>
+   <extends>QWidget</extends>
+   <header location="global">QtImageViewer.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>loadButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>loadImage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>950</x>
+     <y>129</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>906</x>
+     <y>416</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>procButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>startProcess1()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>950</x>
+     <y>232</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>888</x>
+     <y>289</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>editConfig()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>950</x>
+     <y>335</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>845</x>
+     <y>450</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>excelButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>startProcess2()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>950</x>
+     <y>438</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>876</x>
+     <y>565</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>imageList</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>changeImage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>452</x>
+     <y>42</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>856</x>
+     <y>40</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tagButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>selectTag()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>897</x>
+     <y>534</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>921</x>
+     <y>597</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>loadImage()</slot>
+  <slot>startProcess1()</slot>
+  <slot>editConfig()</slot>
+  <slot>startProcess2()</slot>
+  <slot>changeImage()</slot>
+  <slot>selectTag()</slot>
+ </slots>
+</ui>
