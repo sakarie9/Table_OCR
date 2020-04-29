@@ -45,13 +45,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="procButton">
-        <property name="text">
-         <string>开始转换</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QPushButton" name="editButton">
         <property name="text">
          <string>修改参数</string>
@@ -115,22 +108,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>procButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>startProcess1()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>950</x>
-     <y>232</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>888</x>
-     <y>289</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>editButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -138,7 +115,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>950</x>
-     <y>335</y>
+     <y>272</y>
     </hint>
     <hint type="destinationlabel">
      <x>845</x>
@@ -154,7 +131,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>950</x>
-     <y>438</y>
+     <y>395</y>
     </hint>
     <hint type="destinationlabel">
      <x>876</x>
@@ -185,8 +162,8 @@
    <slot>selectTag()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>897</x>
-     <y>534</y>
+     <x>950</x>
+     <y>518</y>
     </hint>
     <hint type="destinationlabel">
      <x>921</x>

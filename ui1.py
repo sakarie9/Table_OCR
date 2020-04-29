@@ -33,9 +33,6 @@ class Ui_MainWindow(object):
         self.loadButton = QtWidgets.QPushButton(self.centralwidget)
         self.loadButton.setObjectName("loadButton")
         self.buttonLayout.addWidget(self.loadButton)
-        self.procButton = QtWidgets.QPushButton(self.centralwidget)
-        self.procButton.setObjectName("procButton")
-        self.buttonLayout.addWidget(self.procButton)
         self.editButton = QtWidgets.QPushButton(self.centralwidget)
         self.editButton.setObjectName("editButton")
         self.buttonLayout.addWidget(self.editButton)
@@ -60,7 +57,6 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         self.loadButton.clicked.connect(MainWindow.loadImage)
-        self.procButton.clicked.connect(MainWindow.startProcess1)
         self.editButton.clicked.connect(MainWindow.editConfig)
         self.excelButton.clicked.connect(MainWindow.startProcess2)
         self.imageList.currentIndexChanged['int'].connect(MainWindow.changeImage)
@@ -71,7 +67,6 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.loadButton.setText(_translate("MainWindow", "打开图片"))
-        self.procButton.setText(_translate("MainWindow", "开始转换"))
         self.editButton.setText(_translate("MainWindow", "修改参数"))
         self.excelButton.setText(_translate("MainWindow", "生成Excel"))
         self.tagButton.setText(_translate("MainWindow", "生成标签"))

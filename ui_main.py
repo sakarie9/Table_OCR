@@ -1,5 +1,7 @@
 import sys
 import os
+import time
+
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QMessageBox, QTableWidgetItem, QMainWindow, QDialog, QTableWidget, QHeaderView, QAbstractItemView, QMenu
 from ui1 import Ui_MainWindow
@@ -12,13 +14,14 @@ import numpy as np
 
 
 TAGS_FILE_PATH = './temp/tag_list.txt'
+CONFIG_FILE_PATH = 'config.yaml'
 
 
 cells: list
 cols_count: int
 rows_count: int
 
-status = 0
+tag_status = 0
 tags_list = []
 
 
@@ -28,19 +31,29 @@ class MyWindow(QMainWindow, Ui_MainWindow):
         self.work: Export2XLSX
         self.names = []
         self.xlsx_name = ''
+        self.image_path = ''
 
         self.setupUi(self)
         self.imageList.setVisible(False)
 
+        self.status = 0
+
 
     # 自定义函数
     def loadImage(self):
-        #self.work = None
         self.image1.loadImageFromFile()
         img_path = self.image1.img_path
         if img_path != '':
+            self.image_path = img_path
             self.xlsx_name = os.path.basename(img_path).split('.')[-2] + '.xlsx'
             self.work = Export2XLSX(img_path, verbose='vv', workbook=self.xlsx_name)
+            self.startProcess1()
+            self.status = 1
+
+    def reloadImage(self):
+        if self.image_path != '':
+            self.work = Export2XLSX(self.image_path, verbose='vv', workbook=self.xlsx_name)
+            self.startProcess1()
 
     def startProcess1(self):
         self.work.process()
@@ -53,12 +66,23 @@ class MyWindow(QMainWindow, Ui_MainWindow):
 
 
     def editConfig(self):
-        pass
+        os.startfile(CONFIG_FILE_PATH)
+        self.reloadImage()
+
 
     def startProcess2(self):
+        if self.status == 0:
+            QtWidgets.QMessageBox.information(self, '警告', '请先点击“打开图片”按钮！',
+                                              QMessageBox.Close, QMessageBox.Close)
+            return
         #self.startProcess1()
+
+        start = time.time()
+        self.reloadImage()
         self.work.ocr_process()
         self.work.export_to_xlsx()
+        end = time.time()
+        print("time: " + str(end - start))
 
         global cells
         global cols_count
@@ -67,17 +91,28 @@ class MyWindow(QMainWindow, Ui_MainWindow):
         cols_count = len(self.work.final_x)-1
         rows_count = len(self.work.final_y)-1
 
-        msgBox = QtWidgets.QMessageBox.information(self, '完成', 'Excel文件转换完成，是否打开？',
+        msgBox = QtWidgets.QMessageBox.information(self, '完成',
+                                                   '耗时'+str(round((end - start), 2))+'s\nExcel文件转换完成，是否打开？',
                                                    QMessageBox.Ok | QMessageBox.Close, QMessageBox.Close)
         if msgBox == QMessageBox.Ok:
             os.startfile(self.xlsx_name)
         else:
             pass
 
-    def selectTag(self):
-        mydialog = MyTag()
-        mydialog.exec_()
+        self.status = 2
 
+    def selectTag(self):
+        if self.status == 0:
+            QtWidgets.QMessageBox.information(self, '警告', '请先点击“打开图片”按钮！',
+                                              QMessageBox.Close, QMessageBox.Close)
+            return
+        elif self.status == 1:
+            QtWidgets.QMessageBox.information(self, '警告', '请先点击“生成Excel”按钮！',
+                                              QMessageBox.Close, QMessageBox.Close)
+            return
+        else:
+            mydialog = MyTag()
+            mydialog.exec_()
     def changeImage(self):
         index = self.imageList.currentIndex()
         path = './temp/'+self.names[index]
@@ -103,6 +138,7 @@ class MyTag(QDialog, Ui_Dialog):
         self.tableWidget.setColumnCount(cols_count)
         self.tableWidget.setRowCount(rows_count)
         self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         header_list = []
         for i in range(cols_count):
             header_list.append(ascii_uppercase[i])
@@ -139,7 +175,7 @@ class MyTag(QDialog, Ui_Dialog):
         self.tableWidget.verticalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
 
     def generateMenu(self, pos):
-        global status
+        global tag_status
         global tags_list
 
         qtcell = self.tableWidget.selectionModel().selection().indexes()[0]
@@ -151,14 +187,14 @@ class MyTag(QDialog, Ui_Dialog):
         action = menu.exec_(self.tableWidget.mapToGlobal(pos))
         # 显示选中行的数据文本
         if action == item1:
-            status = 1
+            tag_status = 1
             tags_list.clear()
             text = self.tableWidget.item(row_num, col_num).text()
             coor = make_cell_coordinate(col_num, row_num)
             tags_list.append(coor)
             #print('你选了选项一，当前行文字内容是：', text)
-        if action == item2 and status == 1:
-            status = 2
+        if action == item2 and tag_status == 1:
+            tag_status = 2
             text = self.tableWidget.item(row_num, col_num).text()
             coor = make_cell_coordinate(col_num, row_num)
             tags_list.append(coor)
@@ -173,12 +209,14 @@ class MyTag(QDialog, Ui_Dialog):
     def deleteRow(self):
         current_row = self.tableWidget_tags.currentRow()
         self.tableWidget_tags.removeRow(current_row)
-        pass
+        self.save_tags()
+
 
     def clearTable(self):
         self.tableWidget_tags.setRowCount(0)
         self.tableWidget_tags.clearContents()
-        pass
+        self.save_tags()
+
 
     def output(self):
         for y in range(self.tableWidget_tags.rowCount()):
@@ -196,11 +234,11 @@ class MyTag(QDialog, Ui_Dialog):
             temp_list = [self.tableWidget_tags.item(y, 0).text(), self.tableWidget_tags.item(y, 1).text()]
             tags_list_save.append(temp_list)
         numpy_list = np.asarray(tags_list_save)
-        np.savetxt(TAGS_FILE_PATH, numpy_list, fmt='%s %s', delimiter=' ')  # 这样就以文本的形式把刚才的数组保存下来了
+        np.savetxt(TAGS_FILE_PATH, numpy_list, fmt='%s', delimiter=' ')  # 这样就以文本的形式把刚才的数组保存下来了
 
     def load_tags(self):
 
-        if not os.path.exists(TAGS_FILE_PATH):
+        if not os.path.exists(TAGS_FILE_PATH) or os.path.getsize(TAGS_FILE_PATH) == 0:
             return
 
         #tags_list_save = np.loadtxt(TAGS_FILE_PATH)
