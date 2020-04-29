@@ -3,7 +3,8 @@ import os
 import time
 
 from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtWidgets import QMessageBox, QTableWidgetItem, QMainWindow, QDialog, QTableWidget, QHeaderView, QAbstractItemView, QMenu
+from PyQt5.QtWidgets import QMessageBox, QTableWidgetItem, QMainWindow, QDialog, QTableWidget, QHeaderView, \
+    QAbstractItemView, QMenu
 from ui1 import Ui_MainWindow
 from ui2 import Ui_Dialog
 import utils
@@ -12,10 +13,9 @@ from utils import split_cell_coordinate, make_cell_coordinate
 from string import ascii_uppercase
 import numpy as np
 
-
 TAGS_FILE_PATH = './temp/tag_list.txt'
-CONFIG_FILE_PATH = 'config.yaml'
-
+CONFIG_FILE_PATH = './config.yaml'
+OUTPUT_FILE_PATH = './output/'
 
 cells: list
 cols_count: int
@@ -38,6 +38,8 @@ class MyWindow(QMainWindow, Ui_MainWindow):
 
         self.status = 0
 
+        if not os.path.exists(OUTPUT_FILE_PATH):
+            os.mkdir(OUTPUT_FILE_PATH)
 
     # 自定义函数
     def loadImage(self):
@@ -45,14 +47,15 @@ class MyWindow(QMainWindow, Ui_MainWindow):
         img_path = self.image1.img_path
         if img_path != '':
             self.image_path = img_path
-            self.xlsx_name = os.path.basename(img_path).split('.')[-2] + '.xlsx'
-            self.work = Export2XLSX(img_path, verbose='vv', workbook=self.xlsx_name)
+            (filename, extension) = os.path.splitext(os.path.basename(img_path))
+            self.xlsx_name = filename + '.xlsx'
+            self.work = Export2XLSX(img_path, verbose='vv', workbook=OUTPUT_FILE_PATH + self.xlsx_name)
             self.startProcess1()
             self.status = 1
 
     def reloadImage(self):
         if self.image_path != '':
-            self.work = Export2XLSX(self.image_path, verbose='vv', workbook=self.xlsx_name)
+            self.work = Export2XLSX(self.image_path, verbose='vv', workbook=OUTPUT_FILE_PATH + self.xlsx_name)
             self.startProcess1()
 
     def startProcess1(self):
@@ -64,18 +67,16 @@ class MyWindow(QMainWindow, Ui_MainWindow):
         self.imageList.setVisible(True)
         self.imageList.setCurrentIndex(7)
 
-
     def editConfig(self):
-        os.startfile(CONFIG_FILE_PATH)
+        os.startfile(os.path.abspath(CONFIG_FILE_PATH))
         self.reloadImage()
-
 
     def startProcess2(self):
         if self.status == 0:
             QtWidgets.QMessageBox.information(self, '警告', '请先点击“打开图片”按钮！',
                                               QMessageBox.Close, QMessageBox.Close)
             return
-        #self.startProcess1()
+        # self.startProcess1()
 
         start = time.time()
         self.reloadImage()
@@ -88,11 +89,11 @@ class MyWindow(QMainWindow, Ui_MainWindow):
         global cols_count
         global rows_count
         cells = self.work.cells
-        cols_count = len(self.work.final_x)-1
-        rows_count = len(self.work.final_y)-1
+        cols_count = len(self.work.final_x) - 1
+        rows_count = len(self.work.final_y) - 1
 
         msgBox = QtWidgets.QMessageBox.information(self, '完成',
-                                                   '耗时'+str(round((end - start), 2))+'s\nExcel文件转换完成，是否打开？',
+                                                   '耗时' + str(round((end - start), 2)) + 's\nExcel文件转换完成，是否打开？',
                                                    QMessageBox.Ok | QMessageBox.Close, QMessageBox.Close)
         if msgBox == QMessageBox.Ok:
             os.startfile(self.xlsx_name)
@@ -113,9 +114,10 @@ class MyWindow(QMainWindow, Ui_MainWindow):
         else:
             mydialog = MyTag()
             mydialog.exec_()
+
     def changeImage(self):
         index = self.imageList.currentIndex()
-        path = './temp/'+self.names[index]
+        path = './temp/' + self.names[index]
         self.image2.loadImageFromFile(path)
 
 
@@ -139,6 +141,7 @@ class MyTag(QDialog, Ui_Dialog):
         self.tableWidget.setRowCount(rows_count)
         self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableWidget.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
         header_list = []
         for i in range(cols_count):
             header_list.append(ascii_uppercase[i])
@@ -154,8 +157,6 @@ class MyTag(QDialog, Ui_Dialog):
         # 读取文件
         self.load_tags()
 
-
-
     def fill_table(self):
         for y in range(len(cells)):
             for x in range(len(cells[y])):
@@ -164,15 +165,11 @@ class MyTag(QDialog, Ui_Dialog):
                 text = present.text
                 if text is not None:
                     pass
-                    #text = text.replace('\n', ' ')
+                    # text = text.replace('\n', ' ')
                 self.tableWidget.setItem(coor_y, coor_x, QTableWidgetItem(text))
                 if present.cell_name != present.merged_info:
                     coor_x2, coor_y2 = split_cell_coordinate(present.merged_info)
-                    self.tableWidget.setSpan(coor_y, coor_x, coor_y2-coor_y+1, coor_x2-coor_x+1)
-
-        # 随内容分配行高
-        self.tableWidget.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.tableWidget.verticalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
+                    self.tableWidget.setSpan(coor_y, coor_x, coor_y2 - coor_y + 1, coor_x2 - coor_x + 1)
 
     def generateMenu(self, pos):
         global tag_status
@@ -192,16 +189,16 @@ class MyTag(QDialog, Ui_Dialog):
             text = self.tableWidget.item(row_num, col_num).text()
             coor = make_cell_coordinate(col_num, row_num)
             tags_list.append(coor)
-            #print('你选了选项一，当前行文字内容是：', text)
+            # print('你选了选项一，当前行文字内容是：', text)
         if action == item2 and tag_status == 1:
             tag_status = 2
             text = self.tableWidget.item(row_num, col_num).text()
             coor = make_cell_coordinate(col_num, row_num)
             tags_list.append(coor)
-            #print('你选了选项二，当前行文字内容是：', text)
+            # print('你选了选项二，当前行文字内容是：', text)
             # 填表
             current_row = self.tableWidget_tags.rowCount()
-            self.tableWidget_tags.setRowCount(self.tableWidget_tags.rowCount()+1)
+            self.tableWidget_tags.setRowCount(self.tableWidget_tags.rowCount() + 1)
             self.tableWidget_tags.setItem(current_row, 0, QTableWidgetItem(tags_list[0]))
             self.tableWidget_tags.setItem(current_row, 1, QTableWidgetItem(tags_list[1]))
             self.save_tags()  # 随时保存
@@ -211,12 +208,10 @@ class MyTag(QDialog, Ui_Dialog):
         self.tableWidget_tags.removeRow(current_row)
         self.save_tags()
 
-
     def clearTable(self):
         self.tableWidget_tags.setRowCount(0)
         self.tableWidget_tags.clearContents()
         self.save_tags()
-
 
     def output(self):
         for y in range(self.tableWidget_tags.rowCount()):
@@ -226,7 +221,7 @@ class MyTag(QDialog, Ui_Dialog):
             coor_x, coor_y = split_cell_coordinate(self.tableWidget_tags.item(y, 1).text())
             text2 = self.tableWidget.item(coor_y, coor_x).text()
             text2 = text2.strip().replace(' ', '').replace('\n', '')
-            print('<'+text1+'>'+text2+'<'+text1+'/>')
+            print('<' + text1 + '>' + text2 + '<' + text1 + '/>')
 
     def save_tags(self):
         tags_list_save = []
@@ -241,12 +236,12 @@ class MyTag(QDialog, Ui_Dialog):
         if not os.path.exists(TAGS_FILE_PATH) or os.path.getsize(TAGS_FILE_PATH) == 0:
             return
 
-        #tags_list_save = np.loadtxt(TAGS_FILE_PATH)
+        # tags_list_save = np.loadtxt(TAGS_FILE_PATH)
         tags_list_save = np.loadtxt(TAGS_FILE_PATH, dtype=bytes).astype(str)
-        #print(tags_list_save.shape)
+        # print(tags_list_save.shape)
         if tags_list_save.ndim == 1:
             tags_list_save = [tags_list_save]
-        #print(tags_list_save)
+        # print(tags_list_save)
 
         self.clearTable()
 
@@ -257,8 +252,6 @@ class MyTag(QDialog, Ui_Dialog):
             for j in range(len(item)):
                 item = QTableWidgetItem(str(tags_list_save[i][j]))
                 self.tableWidget_tags.setItem(row, j, item)
-
-
 
 
 def start_ui():
