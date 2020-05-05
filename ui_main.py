@@ -21,8 +21,7 @@ cells: list
 cols_count: int
 rows_count: int
 
-tag_status = 0
-tags_list = []
+
 
 
 class MyWindow(QMainWindow, Ui_MainWindow):
@@ -125,6 +124,9 @@ class MyTag(QDialog, Ui_Dialog):
     def __init__(self):
         super(MyTag, self).__init__()
 
+        self.tag_status = 0
+        self.tags_list = []
+
         self.setupUi(self)
 
         # 允许右键产生菜单
@@ -172,9 +174,6 @@ class MyTag(QDialog, Ui_Dialog):
                     self.tableWidget.setSpan(coor_y, coor_x, coor_y2 - coor_y + 1, coor_x2 - coor_x + 1)
 
     def generateMenu(self, pos):
-        global tag_status
-        global tags_list
-
         qtcell = self.tableWidget.selectionModel().selection().indexes()[0]
         row_num = qtcell.row()
         col_num = qtcell.column()
@@ -184,23 +183,23 @@ class MyTag(QDialog, Ui_Dialog):
         action = menu.exec_(self.tableWidget.mapToGlobal(pos))
         # 显示选中行的数据文本
         if action == item1:
-            tag_status = 1
-            tags_list.clear()
+            self.tag_status = 1
+            self.tags_list.clear()
             text = self.tableWidget.item(row_num, col_num).text()
             coor = make_cell_coordinate(col_num, row_num)
-            tags_list.append(coor)
+            self.tags_list.append(coor)
             # print('你选了选项一，当前行文字内容是：', text)
-        if action == item2 and tag_status == 1:
-            tag_status = 2
+        if action == item2 and self.tag_status == 1:
+            self.tag_status = 2
             text = self.tableWidget.item(row_num, col_num).text()
             coor = make_cell_coordinate(col_num, row_num)
-            tags_list.append(coor)
+            self.tags_list.append(coor)
             # print('你选了选项二，当前行文字内容是：', text)
             # 填表
             current_row = self.tableWidget_tags.rowCount()
             self.tableWidget_tags.setRowCount(self.tableWidget_tags.rowCount() + 1)
-            self.tableWidget_tags.setItem(current_row, 0, QTableWidgetItem(tags_list[0]))
-            self.tableWidget_tags.setItem(current_row, 1, QTableWidgetItem(tags_list[1]))
+            self.tableWidget_tags.setItem(current_row, 0, QTableWidgetItem(self.tags_list[0]))
+            self.tableWidget_tags.setItem(current_row, 1, QTableWidgetItem(self.tags_list[1]))
             self.save_tags()  # 随时保存
 
     def deleteRow(self):
@@ -217,10 +216,12 @@ class MyTag(QDialog, Ui_Dialog):
         for y in range(self.tableWidget_tags.rowCount()):
             coor_x, coor_y = split_cell_coordinate(self.tableWidget_tags.item(y, 0).text())
             text1 = self.tableWidget.item(coor_y, coor_x).text()
-            text1 = text1.strip().replace(' ', '').replace('\n', '')
+            # text1 = text1.strip().replace(' ', '').replace('\n', '')
+            text1 = text1.strip().replace('\n', '')
             coor_x, coor_y = split_cell_coordinate(self.tableWidget_tags.item(y, 1).text())
             text2 = self.tableWidget.item(coor_y, coor_x).text()
-            text2 = text2.strip().replace(' ', '').replace('\n', '')
+            # text2 = text2.strip().replace(' ', '').replace('\n', '')
+            text2 = text2.strip().replace('\n', '')
             print('<' + text1 + '>' + text2 + '<' + text1 + '/>')
 
     def save_tags(self):
@@ -243,7 +244,8 @@ class MyTag(QDialog, Ui_Dialog):
             tags_list_save = [tags_list_save]
         # print(tags_list_save)
 
-        self.clearTable()
+        self.tableWidget_tags.setRowCount(0)
+        self.tableWidget_tags.clearContents()
 
         for i in range(len(tags_list_save)):
             item = tags_list_save[i]
