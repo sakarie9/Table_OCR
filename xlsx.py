@@ -1,6 +1,5 @@
 from ocr import OcrProcess
 import xlsxwriter
-from cell import UICell
 
 
 class Export2XLSX(OcrProcess):

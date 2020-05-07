@@ -120,17 +120,3 @@ class Cell(object):
         return s
 
     # ------------------------------------------------------------------------------------------------------------------
-
-
-class UICell(object):
-    def __init__(self):
-        self.x = None
-        self.y = None
-        self.text = None
-        self.merge_x = None
-        self.merge_y = None
-
-    def convert(self, cell: Cell):
-        self.x, self.y = split_cell_coordinate(cell.cell_name)
-        self.text = cell.text
-        self.merge_x, self.merge_y = split_cell_coordinate(cell.merged_info)
