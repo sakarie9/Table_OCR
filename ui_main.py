@@ -22,8 +22,6 @@ cols_count: int
 rows_count: int
 
 
-
-
 class MyWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super(MyWindow, self).__init__()
@@ -95,7 +93,7 @@ class MyWindow(QMainWindow, Ui_MainWindow):
                                                    '耗时' + str(round((end - start), 2)) + 's\nExcel文件转换完成，是否打开？',
                                                    QMessageBox.Ok | QMessageBox.Close, QMessageBox.Close)
         if msgBox == QMessageBox.Ok:
-            os.startfile(self.xlsx_name)
+            os.startfile(OUTPUT_FILE_PATH + self.xlsx_name)
         else:
             pass
 
