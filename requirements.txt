@@ -1,0 +1,7 @@
+PyQt5
+numpy==1.18.4
+opencv-python==4.2.0.34
+Pillow==7.1.2
+pytesseract==0.3.4
+PyYAML==5.3.1
+XlsxWriter==1.2.8
