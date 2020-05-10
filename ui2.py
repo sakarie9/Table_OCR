@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui2.ui'
 #
-# Created by: PyQt5 UI code generator 5.13.0
+# Created by: PyQt5 UI code generator 5.14.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -41,6 +41,15 @@ class Ui_Dialog(object):
         self.clearButton.setObjectName("clearButton")
         self.horizontalLayout.addWidget(self.clearButton)
         self.verticalLayout.addLayout(self.horizontalLayout)
+        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.loadButton = QtWidgets.QPushButton(Dialog)
+        self.loadButton.setObjectName("loadButton")
+        self.horizontalLayout_3.addWidget(self.loadButton)
+        self.saveButton = QtWidgets.QPushButton(Dialog)
+        self.saveButton.setObjectName("saveButton")
+        self.horizontalLayout_3.addWidget(self.saveButton)
+        self.verticalLayout.addLayout(self.horizontalLayout_3)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.outputButton = QtWidgets.QPushButton(Dialog)
@@ -53,6 +62,7 @@ class Ui_Dialog(object):
         self.verticalLayout.setStretch(0, 10)
         self.verticalLayout.setStretch(1, 1)
         self.verticalLayout.setStretch(2, 1)
+        self.verticalLayout.setStretch(3, 1)
         self.horizontalLayout_4.addLayout(self.verticalLayout)
         self.horizontalLayout_4.setStretch(0, 5)
         self.horizontalLayout_4.setStretch(1, 1)
@@ -62,6 +72,8 @@ class Ui_Dialog(object):
         self.clearButton.clicked.connect(Dialog.clearTable)
         self.outputButton.clicked.connect(Dialog.output)
         self.closeButton.clicked.connect(Dialog.close)
+        self.loadButton.clicked.connect(Dialog.load)
+        self.saveButton.clicked.connect(Dialog.save)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
@@ -69,5 +81,7 @@ class Ui_Dialog(object):
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
         self.deleteButton.setText(_translate("Dialog", "删除行"))
         self.clearButton.setText(_translate("Dialog", "清空"))
+        self.loadButton.setText(_translate("Dialog", "载入"))
+        self.saveButton.setText(_translate("Dialog", "保存"))
         self.outputButton.setText(_translate("Dialog", "导出"))
         self.closeButton.setText(_translate("Dialog", "关闭"))

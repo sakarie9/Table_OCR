@@ -18,7 +18,7 @@
     <widget class="QTableWidget" name="tableWidget"/>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout" stretch="10,1,1">
+    <layout class="QVBoxLayout" name="verticalLayout" stretch="10,1,1,1">
      <item>
       <widget class="QTableWidget" name="tableWidget_tags"/>
      </item>
@@ -47,6 +47,24 @@
          </property>
          <property name="autoDefault">
           <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QPushButton" name="loadButton">
+         <property name="text">
+          <string>载入</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="saveButton">
+         <property name="text">
+          <string>保存</string>
          </property>
         </widget>
        </item>
@@ -83,8 +101,8 @@
    <slot>deleteRow()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>788</x>
-     <y>688</y>
+     <x>817</x>
+     <y>641</y>
     </hint>
     <hint type="destinationlabel">
      <x>756</x>
@@ -99,8 +117,8 @@
    <slot>clearTable()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>861</x>
-     <y>691</y>
+     <x>898</x>
+     <y>641</y>
     </hint>
     <hint type="destinationlabel">
      <x>888</x>
@@ -140,10 +158,44 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>loadButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>load()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>776</x>
+     <y>694</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>758</x>
+     <y>652</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>saveButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>save()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>864</x>
+     <y>689</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>875</x>
+     <y>651</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>deleteRow()</slot>
   <slot>clearTable()</slot>
   <slot>output()</slot>
+  <slot>load()</slot>
+  <slot>save()</slot>
  </slots>
 </ui>

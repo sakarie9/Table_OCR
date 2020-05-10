@@ -1,10 +1,11 @@
+import shutil
 import sys
 import os
 import time
 
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QMessageBox, QTableWidgetItem, QMainWindow, QDialog, QTableWidget, QHeaderView, \
-    QAbstractItemView, QMenu
+    QAbstractItemView, QMenu, QFileDialog
 from ui1 import Ui_MainWindow
 from ui2 import Ui_Dialog
 import utils
@@ -13,7 +14,9 @@ from utils import split_cell_coordinate, make_cell_coordinate
 from string import ascii_uppercase
 import numpy as np
 
-TAGS_FILE_PATH = './temp/tag_list.txt'
+TAG_FILES_PATH = './tags/'
+TAG_FILE_NAME = 'tag_list.txt'
+TAG_FILE = TAG_FILES_PATH + TAG_FILE_NAME
 CONFIG_FILE_PATH = './config.yaml'
 OUTPUT_FILE_PATH = './output/'
 
@@ -93,7 +96,8 @@ class MyWindow(QMainWindow, Ui_MainWindow):
                                                    '耗时' + str(round((end - start), 2)) + 's\nExcel文件转换完成，是否打开？',
                                                    QMessageBox.Ok | QMessageBox.Close, QMessageBox.Close)
         if msgBox == QMessageBox.Ok:
-            os.startfile(OUTPUT_FILE_PATH + self.xlsx_name)
+            os.startfile(os.path.abspath(OUTPUT_FILE_PATH + self.xlsx_name))
+
         else:
             pass
 
@@ -124,6 +128,9 @@ class MyTag(QDialog, Ui_Dialog):
 
         self.tag_status = 0
         self.tags_list = []
+
+        if not os.path.exists(TAG_FILES_PATH):
+            os.mkdir(TAG_FILES_PATH)
 
         self.setupUi(self)
 
@@ -200,6 +207,38 @@ class MyTag(QDialog, Ui_Dialog):
             self.tableWidget_tags.setItem(current_row, 1, QTableWidgetItem(self.tags_list[1]))
             self.save_tags()  # 随时保存
 
+    def save_tags(self):
+        tags_list_save = []
+        for y in range(self.tableWidget_tags.rowCount()):
+            temp_list = [self.tableWidget_tags.item(y, 0).text(), self.tableWidget_tags.item(y, 1).text()]
+            tags_list_save.append(temp_list)
+        numpy_list = np.asarray(tags_list_save)
+        np.savetxt(TAG_FILE, numpy_list, fmt='%s', delimiter=' ')  # 这样就以文本的形式把刚才的数组保存下来了
+
+    def load_tags(self):
+
+        if not os.path.exists(TAG_FILE) or os.path.getsize(TAG_FILE) == 0:
+            return
+
+        # tags_list_save = np.loadtxt(TAGS_FILE_PATH)
+        tags_list_save = np.loadtxt(TAG_FILE, dtype=bytes).astype(str)
+        # print(tags_list_save.shape)
+        if tags_list_save.ndim == 1:
+            tags_list_save = [tags_list_save]
+        # print(tags_list_save)
+
+        self.tableWidget_tags.setRowCount(0)
+        self.tableWidget_tags.clearContents()
+
+        for i in range(len(tags_list_save)):
+            item = tags_list_save[i]
+            row = self.tableWidget_tags.rowCount()
+            self.tableWidget_tags.insertRow(row)
+            for j in range(len(item)):
+                item = QTableWidgetItem(str(tags_list_save[i][j]))
+                self.tableWidget_tags.setItem(row, j, item)
+
+    # 按钮相关函数
     def deleteRow(self):
         current_row = self.tableWidget_tags.currentRow()
         self.tableWidget_tags.removeRow(current_row)
@@ -222,36 +261,28 @@ class MyTag(QDialog, Ui_Dialog):
             text2 = text2.strip().replace('\n', '')
             print('<' + text1 + '>' + text2 + '<' + text1 + '/>')
 
-    def save_tags(self):
-        tags_list_save = []
-        for y in range(self.tableWidget_tags.rowCount()):
-            temp_list = [self.tableWidget_tags.item(y, 0).text(), self.tableWidget_tags.item(y, 1).text()]
-            tags_list_save.append(temp_list)
-        numpy_list = np.asarray(tags_list_save)
-        np.savetxt(TAGS_FILE_PATH, numpy_list, fmt='%s', delimiter=' ')  # 这样就以文本的形式把刚才的数组保存下来了
+    def load(self):
+        fileName, dummy = QFileDialog.getOpenFileName(self, "打开保存的标签", TAG_FILES_PATH, "Text Files (*.txt)")
+        if fileName == '':
+            QtWidgets.QMessageBox.information(self, '警告', '无效文件！',
+                                              QMessageBox.Close, QMessageBox.Close)
+        else:
+            try:
+                shutil.copyfile(fileName, TAG_FILE)
+            except shutil.SameFileError:
+                pass
+            self.load_tags()
 
-    def load_tags(self):
-
-        if not os.path.exists(TAGS_FILE_PATH) or os.path.getsize(TAGS_FILE_PATH) == 0:
-            return
-
-        # tags_list_save = np.loadtxt(TAGS_FILE_PATH)
-        tags_list_save = np.loadtxt(TAGS_FILE_PATH, dtype=bytes).astype(str)
-        # print(tags_list_save.shape)
-        if tags_list_save.ndim == 1:
-            tags_list_save = [tags_list_save]
-        # print(tags_list_save)
-
-        self.tableWidget_tags.setRowCount(0)
-        self.tableWidget_tags.clearContents()
-
-        for i in range(len(tags_list_save)):
-            item = tags_list_save[i]
-            row = self.tableWidget_tags.rowCount()
-            self.tableWidget_tags.insertRow(row)
-            for j in range(len(item)):
-                item = QTableWidgetItem(str(tags_list_save[i][j]))
-                self.tableWidget_tags.setItem(row, j, item)
+    def save(self):
+        fileName, dummy = QFileDialog.getSaveFileName(self, "保存标签", TAG_FILES_PATH, "Text Files (*.txt)")
+        if fileName == '':
+            QtWidgets.QMessageBox.information(self, '警告', '无效文件！',
+                                              QMessageBox.Close, QMessageBox.Close)
+        else:
+            try:
+                shutil.copyfile(TAG_FILE, fileName)
+            except shutil.SameFileError:
+                pass
 
 
 def start_ui():
