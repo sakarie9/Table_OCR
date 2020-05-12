@@ -357,6 +357,6 @@ class OcrProcess(Preprocess):
         self.ocr_by_file()
         self.fill_text()
 
-        if self.verbose.startswith('vv'):
-            self.cell_print()
+        # if self.verbose.startswith('vv'):
+        #     self.cell_print()
 

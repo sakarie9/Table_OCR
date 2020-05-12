@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>961</width>
-    <height>648</height>
+    <width>800</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -65,6 +65,13 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QPushButton" name="batchButton">
+        <property name="text">
+         <string>批处理模式</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
    </layout>
@@ -74,7 +81,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>961</width>
+     <width>800</width>
      <height>23</height>
     </rect>
    </property>
@@ -159,7 +166,7 @@
    <sender>tagButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>selectTag()</slot>
+   <slot>openTagDialog()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>950</x>
@@ -171,6 +178,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>batchButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>openBatchDialog()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>976</x>
+     <y>629</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>970</x>
+     <y>700</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>loadImage()</slot>
@@ -178,6 +201,7 @@
   <slot>editConfig()</slot>
   <slot>startProcess2()</slot>
   <slot>changeImage()</slot>
-  <slot>selectTag()</slot>
+  <slot>openTagDialog()</slot>
+  <slot>openBatchDialog()</slot>
  </slots>
 </ui>

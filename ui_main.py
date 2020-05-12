@@ -1,15 +1,18 @@
 import shutil
 import sys
 import os
+import threading
 import time
 
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QMessageBox, QTableWidgetItem, QMainWindow, QDialog, QTableWidget, QHeaderView, \
     QAbstractItemView, QMenu, QFileDialog
 from ui1 import Ui_MainWindow
-from ui2 import Ui_Dialog
+from ui2 import Ui_Dialog as Tag_Dialog
+from ui3 import Ui_Dialog as Batch_Dialog
 import utils
 from xlsx import Export2XLSX
+from ocr import OcrProcess
 from utils import split_cell_coordinate, make_cell_coordinate
 from string import ascii_uppercase
 import numpy as np
@@ -23,6 +26,8 @@ OUTPUT_FILE_PATH = './output/'
 cells: list
 cols_count: int
 rows_count: int
+
+verbose = 'vv'
 
 
 class MyWindow(QMainWindow, Ui_MainWindow):
@@ -49,14 +54,19 @@ class MyWindow(QMainWindow, Ui_MainWindow):
             self.image_path = img_path
             (filename, extension) = os.path.splitext(os.path.basename(img_path))
             self.xlsx_name = filename + '.xlsx'
-            self.work = Export2XLSX(img_path, verbose='vv', workbook=OUTPUT_FILE_PATH + self.xlsx_name)
+            self.work = Export2XLSX(img_path, verbose=verbose, workbook=OUTPUT_FILE_PATH + self.xlsx_name)
             self.startProcess1()
             self.status = 1
 
     def reloadImage(self):
         if self.image_path != '':
-            self.work = Export2XLSX(self.image_path, verbose='vv', workbook=OUTPUT_FILE_PATH + self.xlsx_name)
+            self.work = Export2XLSX(self.image_path, verbose=verbose, workbook=OUTPUT_FILE_PATH + self.xlsx_name)
             self.startProcess1()
+
+    def changeImage(self):
+        index = self.imageList.currentIndex()
+        path = './temp/' + self.names[index]
+        self.image2.loadImageFromFile(path)
 
     def startProcess1(self):
         self.work.process()
@@ -103,7 +113,7 @@ class MyWindow(QMainWindow, Ui_MainWindow):
 
         self.status = 2
 
-    def selectTag(self):
+    def openTagDialog(self):
         if self.status == 0:
             QtWidgets.QMessageBox.information(self, '警告', '请先点击“打开图片”按钮！',
                                               QMessageBox.Close, QMessageBox.Close)
@@ -113,18 +123,17 @@ class MyWindow(QMainWindow, Ui_MainWindow):
                                               QMessageBox.Close, QMessageBox.Close)
             return
         else:
-            mydialog = MyTag()
-            mydialog.exec_()
+            self.tag_dialog = MyTagDialog()
+            self.tag_dialog.show()
 
-    def changeImage(self):
-        index = self.imageList.currentIndex()
-        path = './temp/' + self.names[index]
-        self.image2.loadImageFromFile(path)
+    def openBatchDialog(self):
+        self.batch_dialog = MyBatchDialog()
+        self.batch_dialog.show()
 
 
-class MyTag(QDialog, Ui_Dialog):
-    def __init__(self):
-        super(MyTag, self).__init__()
+class MyTagDialog(QDialog, Tag_Dialog):
+    def __init__(self, is_batch=False):
+        super(MyTagDialog, self).__init__()
 
         self.tag_status = 0
         self.tags_list = []
@@ -134,6 +143,16 @@ class MyTag(QDialog, Ui_Dialog):
 
         self.setupUi(self)
 
+        if not is_batch:
+            # 允许右键产生菜单
+            self.tableWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+            # 将右键菜单绑定到槽函数generateMenu
+            self.tableWidget.customContextMenuRequested.connect(self.generateMenu)
+
+            self.make_base()
+            self.fill_table()
+
+    def batch_init(self):
         # 允许右键产生菜单
         self.tableWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         # 将右键菜单绑定到槽函数generateMenu
@@ -283,6 +302,125 @@ class MyTag(QDialog, Ui_Dialog):
                 shutil.copyfile(TAG_FILE, fileName)
             except shutil.SameFileError:
                 pass
+
+
+class MyBatchDialog(QDialog, Batch_Dialog):
+    def __init__(self):
+        super(MyBatchDialog, self).__init__()
+        self.setupUi(self)
+
+        self.path = None
+        self.mode = None
+        self.is_path_ok = False
+        self.is_tag_ok = False
+        self.is_processing = False
+        self.is_stop = False
+
+        self.MyTagDialog = MyTagDialog(is_batch=True)
+
+    def get_radio_select(self):
+        name = self.buttonGroup.checkedButton().objectName()
+        if name == 'radioButton1':
+            self.mode = 1
+        elif name == 'radioButton2':
+            self.mode = 2
+        elif name == 'radioButton3':
+            self.mode = 3
+        else:
+            self.mode = 1
+        return self.mode
+
+    def set_progress(self, now_value, max_value):
+        self.progressBar.setMaximum(max_value)
+        self.progressBar.setValue(now_value)
+        self.label.setText(str(now_value) + '/' + str(max_value))
+
+    def selectFolder(self):
+        directory = QtWidgets.QFileDialog.getExistingDirectory(self, "getExistingDirectory", "./")
+        is_have_pics = False
+        names = os.listdir(directory)
+        for name in names:
+            if name.endswith('.jpg') or name.endswith('.png'):
+                is_have_pics = True
+        if directory is not None and is_have_pics:
+            self.path = directory
+            self.is_path_ok = True
+        else:
+            self.is_path_ok = False
+
+    def selectTag(self):
+        self.MyTagDialog.load()
+        self.is_tag_ok = True
+
+    def startProcess(self):
+        t = threading.Thread(target=self.startProcess1, name="Process1")
+        t.start()
+
+    def startProcess1(self):
+        self.startButton.setEnabled(False)
+        self.get_radio_select()
+        self.is_stop = False
+
+        pics = os.listdir(self.path)
+        list_pics = []
+        for pic in pics:
+            if pic.endswith('.jpg') or pic.endswith('.png'):
+                list_pics.append(self.path + os.sep + pic)
+
+        global cells
+        global cols_count
+        global rows_count
+
+        # self.progressBar.setMaximum(len(list_pics))
+        # self.label.setText('0/' + str(len(list_pics)))
+        self.set_progress(0, len(list_pics))
+
+        for i, pic in enumerate(list_pics):
+            if self.is_stop:
+                self.is_stop = False
+                return
+            if self.mode == 1:
+                (filename, extension) = os.path.splitext(os.path.basename(pic))
+                xlsx_name = filename + '.xlsx'
+                work = Export2XLSX(pic, verbose=verbose, workbook=OUTPUT_FILE_PATH + xlsx_name)
+                work.ocr_process()
+                work.export_to_xlsx()
+
+                cells = work.cells
+                cols_count = len(work.final_x) - 1
+                rows_count = len(work.final_y) - 1
+
+                self.MyTagDialog.batch_init()
+                self.MyTagDialog.output()
+
+            elif self.mode == 2:
+                (filename, extension) = os.path.splitext(os.path.basename(pic))
+                xlsx_name = filename + '.xlsx'
+                work = Export2XLSX(pic, verbose=verbose, workbook=OUTPUT_FILE_PATH + xlsx_name)
+                work.ocr_process()
+                work.export_to_xlsx()
+            elif self.mode == 3:
+                work = OcrProcess(pic, verbose=verbose)
+                work.ocr_process()
+
+                cells = work.cells
+                cols_count = len(work.final_x) - 1
+                rows_count = len(work.final_y) - 1
+
+                self.MyTagDialog.batch_init()
+                self.MyTagDialog.output()
+
+            # self.progressBar.setValue(i + 1)
+            # self.label.setText(str(i + 1) + '/' + str(len(list_pics)))
+            self.set_progress(i + 1, len(list_pics))
+
+        self.startButton.setEnabled(True)
+        self.label.setText('完成！')
+
+    def cancelProcess(self):
+        self.is_stop = True
+        self.startButton.setEnabled(True)
+        pass
 
 
 def start_ui():

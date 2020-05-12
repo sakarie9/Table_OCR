@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui1.ui'
 #
-# Created by: PyQt5 UI code generator 5.13.0
+# Created by: PyQt5 UI code generator 5.14.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -13,7 +13,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(961, 648)
+        MainWindow.resize(800, 600)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.centralwidget)
@@ -42,13 +42,16 @@ class Ui_MainWindow(object):
         self.tagButton = QtWidgets.QPushButton(self.centralwidget)
         self.tagButton.setObjectName("tagButton")
         self.buttonLayout.addWidget(self.tagButton)
+        self.batchButton = QtWidgets.QPushButton(self.centralwidget)
+        self.batchButton.setObjectName("batchButton")
+        self.buttonLayout.addWidget(self.batchButton)
         self.horizontalLayout.addLayout(self.buttonLayout)
         self.horizontalLayout.setStretch(0, 3)
         self.horizontalLayout.setStretch(1, 3)
         self.horizontalLayout.setStretch(2, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 961, 23))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 23))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
@@ -60,7 +63,8 @@ class Ui_MainWindow(object):
         self.editButton.clicked.connect(MainWindow.editConfig)
         self.excelButton.clicked.connect(MainWindow.startProcess2)
         self.imageList.currentIndexChanged['int'].connect(MainWindow.changeImage)
-        self.tagButton.clicked.connect(MainWindow.selectTag)
+        self.tagButton.clicked.connect(MainWindow.openTagDialog)
+        self.batchButton.clicked.connect(MainWindow.openBatchDialog)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -70,4 +74,5 @@ class Ui_MainWindow(object):
         self.editButton.setText(_translate("MainWindow", "修改参数"))
         self.excelButton.setText(_translate("MainWindow", "生成Excel"))
         self.tagButton.setText(_translate("MainWindow", "生成标签"))
+        self.batchButton.setText(_translate("MainWindow", "批处理模式"))
 from QtImageViewer import QtImageViewer
