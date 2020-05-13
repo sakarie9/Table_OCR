@@ -256,3 +256,15 @@ def split_cell_coordinate(coor_str):
 
 def make_cell_coordinate(x, y):
     return ascii_uppercase[int(x)] + str(y+1)
+
+
+def write_xml(path, filename, data_list):
+    string = '<data>\n'
+    for data in data_list:
+        text1 = data[0]
+        text2 = data[1]
+        string = string + '\t<' + text1 + '>' + text2 + '</' + text1 + '>\n'
+    string = string + '</data>'
+    # print(path, filename, data_list)
+    with open(path+filename+'.xml', "w") as f:
+        f.write(string)

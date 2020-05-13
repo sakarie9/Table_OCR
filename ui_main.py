@@ -27,7 +27,9 @@ cells: list
 cols_count: int
 rows_count: int
 
-verbose = 'vv'
+filename_now = ''
+
+verbose = 'v'
 
 
 class MyWindow(QMainWindow, Ui_MainWindow):
@@ -53,6 +55,8 @@ class MyWindow(QMainWindow, Ui_MainWindow):
         if img_path != '':
             self.image_path = img_path
             (filename, extension) = os.path.splitext(os.path.basename(img_path))
+            global filename_now
+            filename_now = filename
             self.xlsx_name = filename + '.xlsx'
             self.work = Export2XLSX(img_path, verbose=verbose, workbook=OUTPUT_FILE_PATH + self.xlsx_name)
             self.startProcess1()
@@ -269,16 +273,18 @@ class MyTagDialog(QDialog, Tag_Dialog):
         self.save_tags()
 
     def output(self):
+        data_list = []
         for y in range(self.tableWidget_tags.rowCount()):
             coor_x, coor_y = split_cell_coordinate(self.tableWidget_tags.item(y, 0).text())
             text1 = self.tableWidget.item(coor_y, coor_x).text()
-            # text1 = text1.strip().replace(' ', '').replace('\n', '')
-            text1 = text1.strip().replace('\n', '')
+            text1 = text1.strip().replace(' ', '').replace('\n', '')
             coor_x, coor_y = split_cell_coordinate(self.tableWidget_tags.item(y, 1).text())
             text2 = self.tableWidget.item(coor_y, coor_x).text()
             # text2 = text2.strip().replace(' ', '').replace('\n', '')
             text2 = text2.strip().replace('\n', '')
-            print('<' + text1 + '>' + text2 + '<' + text1 + '/>')
+            # print('<' + text1 + '>' + text2 + '<' + text1 + '/>')
+            data_list.append([text1, text2])
+        utils.write_xml(OUTPUT_FILE_PATH, filename_now, data_list)
 
     def load(self):
         fileName, dummy = QFileDialog.getOpenFileName(self, "打开保存的标签", TAG_FILES_PATH, "Text Files (*.txt)")
@@ -315,6 +321,7 @@ class MyBatchDialog(QDialog, Batch_Dialog):
         self.is_tag_ok = False
         self.is_processing = False
         self.is_stop = False
+        self.is_running = False
 
         self.MyTagDialog = MyTagDialog(is_batch=True)
 
@@ -337,6 +344,8 @@ class MyBatchDialog(QDialog, Batch_Dialog):
 
     def selectFolder(self):
         directory = QtWidgets.QFileDialog.getExistingDirectory(self, "getExistingDirectory", "./")
+        if directory == '':
+            return
         is_have_pics = False
         names = os.listdir(directory)
         for name in names:
@@ -353,13 +362,20 @@ class MyBatchDialog(QDialog, Batch_Dialog):
         self.is_tag_ok = True
 
     def startProcess(self):
+        #self.startButton.setEnabled(False)
+        if self.is_running:
+            print('已经在运行！')
+            return
         t = threading.Thread(target=self.startProcess1, name="Process1")
         t.start()
 
     def startProcess1(self):
-        self.startButton.setEnabled(False)
+        if not self.is_path_ok:
+            return
+
         self.get_radio_select()
         self.is_stop = False
+        self.is_running = True
 
         pics = os.listdir(self.path)
         list_pics = []
@@ -378,10 +394,16 @@ class MyBatchDialog(QDialog, Batch_Dialog):
         for i, pic in enumerate(list_pics):
             if self.is_stop:
                 self.is_stop = False
+                self.is_running = False
                 return
+
+            (filename, extension) = os.path.splitext(os.path.basename(pic))
+            xlsx_name = filename + '.xlsx'
+            global filename_now
+            filename_now = filename
+
             if self.mode == 1:
-                (filename, extension) = os.path.splitext(os.path.basename(pic))
-                xlsx_name = filename + '.xlsx'
+
                 work = Export2XLSX(pic, verbose=verbose, workbook=OUTPUT_FILE_PATH + xlsx_name)
                 work.ocr_process()
                 work.export_to_xlsx()
@@ -394,11 +416,10 @@ class MyBatchDialog(QDialog, Batch_Dialog):
                 self.MyTagDialog.output()
 
             elif self.mode == 2:
-                (filename, extension) = os.path.splitext(os.path.basename(pic))
-                xlsx_name = filename + '.xlsx'
                 work = Export2XLSX(pic, verbose=verbose, workbook=OUTPUT_FILE_PATH + xlsx_name)
                 work.ocr_process()
                 work.export_to_xlsx()
+
             elif self.mode == 3:
                 work = OcrProcess(pic, verbose=verbose)
                 work.ocr_process()
@@ -414,12 +435,13 @@ class MyBatchDialog(QDialog, Batch_Dialog):
             # self.label.setText(str(i + 1) + '/' + str(len(list_pics)))
             self.set_progress(i + 1, len(list_pics))
 
-        self.startButton.setEnabled(True)
+        #self.startButton.setEnabled(True)
         self.label.setText('完成！')
+        self.is_running = False
 
     def cancelProcess(self):
         self.is_stop = True
-        self.startButton.setEnabled(True)
+        #self.startButton.setEnabled(True)
         pass
 
 
