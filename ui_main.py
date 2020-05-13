@@ -5,6 +5,7 @@ import threading
 import time
 
 from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5.QtCore import pyqtSignal, QThread
 from PyQt5.QtWidgets import QMessageBox, QTableWidgetItem, QMainWindow, QDialog, QTableWidget, QHeaderView, \
     QAbstractItemView, QMenu, QFileDialog
 from ui1 import Ui_MainWindow
@@ -311,6 +312,8 @@ class MyTagDialog(QDialog, Tag_Dialog):
 
 
 class MyBatchDialog(QDialog, Batch_Dialog):
+    signal_run = pyqtSignal()
+    signal_ui = pyqtSignal(int, int)
     def __init__(self):
         super(MyBatchDialog, self).__init__()
         self.setupUi(self)
@@ -319,9 +322,8 @@ class MyBatchDialog(QDialog, Batch_Dialog):
         self.mode = None
         self.is_path_ok = False
         self.is_tag_ok = False
-        self.is_processing = False
+
         self.is_stop = False
-        self.is_running = False
 
         self.MyTagDialog = MyTagDialog(is_batch=True)
 
@@ -341,6 +343,10 @@ class MyBatchDialog(QDialog, Batch_Dialog):
         self.progressBar.setMaximum(max_value)
         self.progressBar.setValue(now_value)
         self.label.setText(str(now_value) + '/' + str(max_value))
+
+    def ui_update(self):
+        self.startButton.setEnabled(True)
+        self.label.setText('完成！')
 
     def selectFolder(self):
         directory = QtWidgets.QFileDialog.getExistingDirectory(self, "getExistingDirectory", "./")
@@ -362,12 +368,23 @@ class MyBatchDialog(QDialog, Batch_Dialog):
         self.is_tag_ok = True
 
     def startProcess(self):
-        #self.startButton.setEnabled(False)
-        if self.is_running:
-            print('已经在运行！')
-            return
-        t = threading.Thread(target=self.startProcess1, name="Process1")
-        t.start()
+        self.startButton.setEnabled(False)
+        self.set_progress(0, 0)
+
+        proc = self.startProcess1
+
+        class Example(QThread):
+            def __init__(self):
+                super().__init__()
+
+            def run(self):
+                # 进行任务操作
+                proc()
+
+        self.thread = Example()
+        self.signal_ui.connect(self.set_progress)
+        self.signal_run.connect(self.ui_update)
+        self.thread.start()  # 启动线程
 
     def startProcess1(self):
         if not self.is_path_ok:
@@ -375,7 +392,6 @@ class MyBatchDialog(QDialog, Batch_Dialog):
 
         self.get_radio_select()
         self.is_stop = False
-        self.is_running = True
 
         pics = os.listdir(self.path)
         list_pics = []
@@ -387,14 +403,11 @@ class MyBatchDialog(QDialog, Batch_Dialog):
         global cols_count
         global rows_count
 
-        # self.progressBar.setMaximum(len(list_pics))
-        # self.label.setText('0/' + str(len(list_pics)))
-        self.set_progress(0, len(list_pics))
+        #self.set_progress(0, len(list_pics))
 
         for i, pic in enumerate(list_pics):
             if self.is_stop:
                 self.is_stop = False
-                self.is_running = False
                 return
 
             (filename, extension) = os.path.splitext(os.path.basename(pic))
@@ -431,17 +444,13 @@ class MyBatchDialog(QDialog, Batch_Dialog):
                 self.MyTagDialog.batch_init()
                 self.MyTagDialog.output()
 
-            # self.progressBar.setValue(i + 1)
-            # self.label.setText(str(i + 1) + '/' + str(len(list_pics)))
-            self.set_progress(i + 1, len(list_pics))
+            self.signal_ui.emit(i + 1, len(list_pics))
 
-        #self.startButton.setEnabled(True)
-        self.label.setText('完成！')
-        self.is_running = False
+        self.signal_run.emit()
 
     def cancelProcess(self):
         self.is_stop = True
-        #self.startButton.setEnabled(True)
+        self.startButton.setEnabled(True)
         pass
 
 
