@@ -75,12 +75,12 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        Dialog.setWindowTitle(_translate("Dialog", "批处理"))
         self.folderSelectButton.setText(_translate("Dialog", "选择文件夹"))
         self.tagSelectButton.setText(_translate("Dialog", "选择标签"))
-        self.radioButton1.setText(_translate("Dialog", "生成Excel+Tag"))
+        self.radioButton1.setText(_translate("Dialog", "生成Excel+XML"))
         self.radioButton2.setText(_translate("Dialog", "只生成Excel"))
-        self.radioButton3.setText(_translate("Dialog", "只生成Tag"))
+        self.radioButton3.setText(_translate("Dialog", "只生成XML"))
         self.label.setText(_translate("Dialog", "0/0"))
         self.startButton.setText(_translate("Dialog", "开始"))
         self.cancelButton.setText(_translate("Dialog", "取消"))

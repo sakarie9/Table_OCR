@@ -69,7 +69,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "表格识别"))
         self.loadButton.setText(_translate("MainWindow", "打开图片"))
         self.editButton.setText(_translate("MainWindow", "修改参数"))
         self.excelButton.setText(_translate("MainWindow", "生成Excel"))

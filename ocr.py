@@ -66,7 +66,7 @@ class OcrProcess(Preprocess):
 
     def ocr_by_file(self):
         start = time.time()
-        cpu = cpu_count()
+        cpu = cpu_count() / 2
         with ThreadPoolExecutor(cpu) as executor:
             executor.map(multi_ocr, self.ocr_files)
         end = time.time()

@@ -103,6 +103,8 @@ class QtImageViewer(QWidget):
             fileName, dummy = QFileDialog.getOpenFileName(self, "Open image file.", directory='./tables')
         #if len(fileName) and os.path.isfile(fileName):
         #print(fileName)
+        if fileName == '':
+            return
         self.img_path = fileName
         self.img = QPixmap(fileName)
         #self.scaled_img = self.img.scaled(self.size(), Qt.KeepAspectRatio)

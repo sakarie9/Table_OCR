@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>批处理</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
@@ -38,7 +38,7 @@
        <item>
         <widget class="QRadioButton" name="radioButton1">
          <property name="text">
-          <string>生成Excel+Tag</string>
+          <string>生成Excel+XML</string>
          </property>
          <property name="checked">
           <bool>true</bool>
@@ -61,7 +61,7 @@
        <item>
         <widget class="QRadioButton" name="radioButton3">
          <property name="text">
-          <string>只生成Tag</string>
+          <string>只生成XML</string>
          </property>
          <attribute name="buttonGroup">
           <string notr="true">buttonGroup</string>

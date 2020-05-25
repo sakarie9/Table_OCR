@@ -143,9 +143,12 @@ class Preprocess(object):
         旋转角度大于0，则逆时针旋转，否则顺时针旋转
         """
         rotateImg = utils.rotate(self.img, thera)
-        # cv2.drawContours(rotateImg, np.array([[[mx1, my1]], [[mx2, my2]]]), -1, (0, 255, 0), 20)
 
         # 进行左右多余白边的裁剪
+        # 对旋转了的图像重新进行霍夫变换
+        if int(thera) != 0:
+            canny_rotate = ~utils.rotate(~canny, thera)
+            lines = cv2.HoughLinesP(canny_rotate, 1, np.pi / 180, 100, minLineLength=100, maxLineGap=10)
         lines = np.squeeze(lines)
         # 最小x
         min_x = sys.maxsize
@@ -357,6 +360,11 @@ class Preprocess(object):
         approx_method = self.config['contour']['approx_method']
         contours, hierarchy = cv2.findContours(thr, retrieve_mode, approx_method)
 
+        # temp = np.ones(thr.shape, np.uint8) * 255
+        # temp = cv2.cvtColor(temp,cv2.COLOR_GRAY2BGR)
+        # cv2.drawContours(temp, np.squeeze(contours), -1, (0, 0, 255), 1)
+        # cv2.imshow('1',temp)
+
         needed_x = []
         needed_y = []
         find_min_width = self.config['num_of_needed_cell']['find_min_width']
@@ -376,7 +384,6 @@ class Preprocess(object):
                 needed_x.append(x + width)
                 needed_y.append(y)
                 needed_y.append(y + height)
-
         # 所需单元格的个数
         needed_x = sorted(list(set(needed_x)))  # list(set(my_list)) --> 重复数据删除
         needed_y = sorted(list(set(needed_y)))
@@ -586,6 +593,7 @@ class Preprocess(object):
         self.clean_merge()
 
         tmp_img = np.copy(self.erased_line)
+        # tmp_img = np.ones(self.erased_line.shape, np.uint8) * 255
 
         cols_range = len(self.cells)
         for cols in range(cols_range):

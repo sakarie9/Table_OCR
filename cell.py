@@ -1,7 +1,8 @@
-from utils import split_cell_coordinate
+
 class Cell(object):
-    """ Form에서 이루어지는 각각의 cell들의 대한 정보를 저장합니다.
-     存储有关表单中每个单元格的信息"""
+    """
+     存储有关表单中每个单元格的信息
+    """
 
     def __init__(self):
         # 单元格矩阵
