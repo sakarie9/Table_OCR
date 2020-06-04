@@ -8,6 +8,9 @@ import time
 from multiprocessing import cpu_count
 import utils
 
+ocr.pytesseract.tesseract_cmd = os.path.abspath("Tesseract-OCR/tesseract.exe")
+tesseract_config = '--tessdata-dir "' + os.path.abspath("Tesseract-OCR/tessdata") + '" '\
+                   '--psm 7 -c preserve_interword_spaces=1'
 
 ocr_dir = os.path.abspath('.') + r'\temp\ocr'
 ocr_dict = dict()  # A1:text
@@ -16,9 +19,9 @@ dict_texts = dict()
 
 
 def multi_ocr(full_dir):
-    text = ocr.image_to_string(full_dir, lang='chi_sim_simsun', config='--psm 7 -c preserve_interword_spaces=1')
+    text = ocr.image_to_string(full_dir, lang='chi_sim_simsun', config=tesseract_config)
     if not text:
-        text = ocr.image_to_string(full_dir, lang='chi_sim', config='--psm 7 -c preserve_interword_spaces=1')
+        text = ocr.image_to_string(full_dir, lang='chi_sim', config=tesseract_config)
     d1, d2 = utils.get_dirs_2(full_dir)
     dict_texts[d1][int(d2)] = text
     #print(d1+' '+d2+' '+' '+text)
