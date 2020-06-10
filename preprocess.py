@@ -87,17 +87,16 @@ class Preprocess(object):
         """
         cell's info printing method for debugging
         """
-        if self.verbose.startswith('vv'):
-            imgt = np.zeros((self.origin_height, self.origin_width, 3), np.uint8)
-            imgt.fill(255)
-            for cols in range(len(self.cells)):
-                for rows in range(len(self.cells[cols])):
-                    cellt = self.cells[cols][rows]
-                    print(cellt)
-                    x, y, width, height, central_x, central_y = cellt.get_value()
-                    cv2.rectangle(imgt, (x, y), (x + width, y + height), (255, 0, 0), thickness=3)
-                    cv2.putText(imgt, cellt.get_cellname(), (central_x, central_y), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 255))
-            self._show_img("9_cells", imgt)
+        imgt = np.zeros((self.origin_height, self.origin_width, 3), np.uint8)
+        imgt.fill(255)
+        for cols in range(len(self.cells)):
+            for rows in range(len(self.cells[cols])):
+                cellt = self.cells[cols][rows]
+                # print(cellt)
+                x, y, width, height, central_x, central_y = cellt.get_value()
+                cv2.rectangle(imgt, (x, y), (x + width, y + height), (255, 0, 0), thickness=3)
+                cv2.putText(imgt, cellt.get_cellname(), (central_x, central_y), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 255))
+        self._show_img("9_cells", imgt)
 
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -466,7 +465,7 @@ class Preprocess(object):
                         self.cells[cols][rows].boundary['lower'] = True
                         break
 
-        #self.temp_print()
+        # self.cell_print()
 
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -608,7 +607,7 @@ class Preprocess(object):
                               (255, 0, 0, 50), 2)
 
         self._show_img('8_cell_merged', tmp_img)
-        #self.temp_print()
+        self.cell_print()
 
     # ------------------------------------------------------------------------------------------------------------------
 
