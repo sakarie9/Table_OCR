@@ -19,7 +19,7 @@ dict_texts = dict()
 
 
 def multi_ocr(full_dir):
-    text = ocr.image_to_string(full_dir, lang='chi_sim_simsun', config=tesseract_config)
+    text = ocr.image_to_string(full_dir, lang='chi_sim_simsun_fast', config=tesseract_config)
     if not text:
         text = ocr.image_to_string(full_dir, lang='chi_sim', config=tesseract_config)
     d1, d2 = utils.get_dirs_2(full_dir)
