@@ -158,6 +158,10 @@ class Preprocess(object):
         max_x = 0
         for line in lines:
             max_x = max(max_x, line[2])
+        if min_x - 3 >= 0:
+            min_x = min_x - 3
+        if max_x + 3 <= len(rotateImg[0])-1:
+            max_x = max_x + 3
         cropped = rotateImg[0:len(rotateImg)-1, min_x:max_x]  # 裁剪坐标为[y0:y1, x0:x1]
 
         self.img = cropped.copy()
